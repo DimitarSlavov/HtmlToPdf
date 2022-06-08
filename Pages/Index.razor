@@ -1,5 +1,36 @@
 ﻿@page "/"
 
+@inject IJSRuntime JSRuntime
+
 <PageTitle>HtmlToPdf</PageTitle>
 
+<div class="container-fluid">
+	<button class="btn btn-success" onclick="@(() => Convert())">Convert</button>
+	<div class="row">
+		<div class="col-6">
+			<label>Html</label>
+			<textarea id="content" class="form-control" @onchange="@(x => html = x.Value?.ToString())"></textarea>
+		</div>
+		<div class="col-6">
+			<label>Pdf</label>
+			<embed src="@pdf" type="application/pdf"  height="700" width="500">
+		</div>
+	</div>
+	<div id="elementH"></div>
+</div>
 
+@code{
+	private const string Src = "data:application/pdf;base64,";
+	private string? html;
+	private string? pdf;
+
+	private async Task Convert()
+	{
+		if (!string.IsNullOrWhiteSpace(html))
+		{
+			await JSRuntime.InvokeVoidAsync("convertHtmlToPdf");
+			
+			pdf = "~/sample-document.pdf";	
+		}
+	}
+}
