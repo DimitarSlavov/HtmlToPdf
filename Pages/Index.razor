@@ -28,9 +28,9 @@
 	{
 		if (!string.IsNullOrWhiteSpace(html))
 		{
-			await JSRuntime.InvokeVoidAsync("convertHtmlToPdf");
-			
-			pdf = "~/sample-document.pdf";	
+			var result = await JSRuntime.InvokeAsync<string>("convertHtmlToPdf");
+
+			pdf = Src + result;	
 		}
 	}
 }
