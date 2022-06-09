@@ -5,20 +5,26 @@
 <PageTitle>HtmlToPdf</PageTitle>
 
 <div class="container-fluid">
-	<button class="btn btn-success" onclick="@(() => Convert())">Convert</button>
+	<div class="col-auto">
+		<button type="submit" class="btn btn-primary mb-3" onclick="@(() => Convert())">Convert</button>
+	</div>
 	<div class="row">
 		<div class="col-6">
-			<label>Html</label>
-			<textarea id="content" class="form-control" @onchange="@(x => html = x.Value?.ToString())"></textarea>
+			<div class="mb-3">
+				<label for="content" class="form-label">Html</label>
+				<textarea id="content" class="form-control" rows="30" @onchange="@(x => html = x.Value?.ToString())"></textarea>
+			</div>
 		</div>
 		<div class="col-6">
-			<label>Pdf</label>
-			<embed src="@pdf" type="application/pdf"  height="700" width="500">
+			<div class="mb-3">
+				<label for="pdf" class="form-label">Pdf</label>
+				<embed id="pdf" class="form-control" src="@pdf" type="application/pdf" height="700" width="500">
+			</div>
 		</div>
 	</div>
 </div>
 
-@code{
+@code {
 	private const string Src = "data:application/pdf;base64,";
 	private string? html;
 	private string? pdf;
@@ -29,7 +35,7 @@
 		{
 			var result = await JSRuntime.InvokeAsync<byte[]>("convertHtmlToPdf");
 
-			pdf = Src +  System.Convert.ToBase64String(result);	
+			pdf = Src + System.Convert.ToBase64String(result);
 		}
 	}
 }
