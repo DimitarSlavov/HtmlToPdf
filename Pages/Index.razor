@@ -4,21 +4,24 @@
 
 <PageTitle>HtmlToPdf</PageTitle>
 
+<h1 class="h1 text-center">HTML To PDF Converter</h1>
+
 <div class="container-fluid">
-	<div class="col-auto">
-		<button type="submit" class="btn btn-primary mb-3" onclick="@(() => Convert())">Convert</button>
+	<div class="col-10 offset-1">
+		<button type="submit" class="btn btn-success mb-3" onclick="@(() => ConvertHtmlToPdf())">Convert</button>
+		<button type="submit" class="btn btn-warning mb-3 float-end" onclick="@(() => Reset())">Reset</button>
 	</div>
 	<div class="row">
-		<div class="col-6">
-			<div class="mb-3">
-				<label for="content" class="form-label">Html</label>
-				<textarea id="content" class="form-control" rows="30" @onchange="@(x => html = x.Value?.ToString())"></textarea>
+		<div class="col-5 offset-1">
+			<div class="mb-5">
+				<label for="content" class="form-label text-uppercase fw-bold">Html</label>
+				<textarea id="content" class="form-control" @bind="html"></textarea>
 			</div>
 		</div>
-		<div class="col-6">
-			<div class="mb-3">
-				<label for="pdf" class="form-label">Pdf</label>
-				<embed id="pdf" class="form-control" src="@pdf" type="application/pdf" height="700" width="500">
+		<div class="col-5">
+			<div class="mb-5">
+				<label class="form-label text-uppercase fw-bold">Pdf</label>
+				<embed id="pdf" class="form-control" src="@pdf" type="application/pdf">
 			</div>
 		</div>
 	</div>
@@ -29,13 +32,36 @@
 	private string? html;
 	private string? pdf;
 
-	private async Task Convert()
+	private async Task ConvertHtmlToPdf(CancellationToken ct = default)
 	{
 		if (!string.IsNullOrWhiteSpace(html))
 		{
-			var result = await JSRuntime.InvokeAsync<byte[]>("convertHtmlToPdf");
+			var result = await JSRuntime.InvokeAsync<byte[]>("convertHtmlToPdf", ct);
 
-			pdf = Src + System.Convert.ToBase64String(result);
+			ct.ThrowIfCancellationRequested();
+
+			pdf = Src + Convert.ToBase64String(result);
+		}
+	}
+
+	private async Task Reset()
+	{
+		var cts = new CancellationTokenSource();
+
+		cts.Cancel();
+
+		try
+		{
+			await ConvertHtmlToPdf(cts.Token);
+		}
+		catch (OperationCanceledException)
+		{
+			//log error
+		}
+		finally
+		{
+			html = null;
+			pdf = null;
 		}
 	}
 }
